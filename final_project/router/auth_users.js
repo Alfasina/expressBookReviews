@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 let books = require("./booksdb.js");
 const regd_users = express.Router();
 
-let users = [];
+let users = [{"username":"huss","password":"pass123"}];
 
 const isValid = (username)=>{ //returns boolean
 //write code to check is the username is valid
@@ -25,6 +25,7 @@ return false;
 regd_users.post("/login", (req,res) => {
   //Write your code here
   const {username, password}=req.body
+  console.log(username)
   if(!isValid(username)){
     return res.status(400).json({
       error: "Invalid Username Formet"
@@ -32,6 +33,14 @@ regd_users.post("/login", (req,res) => {
 
   }
   if (authenticatedUser(username,password)){
+    let accessToken = jwt.sign({
+      data: password
+    }, 'access', { expiresIn: 60 * 60 });
+
+    req.session.authorization = {
+            accessToken,username
+        }
+
     return res.status(200).json({message:"login Successfully"})
   } 
   return res.status(401).json({error: "Authentication Failed"});
